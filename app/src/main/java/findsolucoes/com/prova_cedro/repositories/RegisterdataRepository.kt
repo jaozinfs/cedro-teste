@@ -25,7 +25,7 @@ class RegisterdataRepository(application : Application){
     fun requestRegister(registerCredentials: RegisterCredentials, registerCallback: RegisterCallback){
 
         retrofitAPI.registerRequest(registerCredentials)
-            .timeout(50000, TimeUnit.SECONDS)
+            .timeout(60, TimeUnit.SECONDS)
             .subscribeOn(Schedulers.io())
             .unsubscribeOn(Schedulers.computation())
             .observeOn(AndroidSchedulers.mainThread())

@@ -25,7 +25,7 @@ class LogindataRepository(application : Application){
      */
     fun loginRequest(loginCredentials: LoginCredentials, loginCallback: LoginCallback){
         retrofitAPI.loginRequest(LoginCredentials(loginCredentials.email, loginCredentials.password))
-            .timeout(50000, TimeUnit.SECONDS)
+            .timeout(60, TimeUnit.SECONDS)
             .subscribeOn(Schedulers.io())
             .unsubscribeOn(Schedulers.computation())
             .observeOn(AndroidSchedulers.mainThread())
