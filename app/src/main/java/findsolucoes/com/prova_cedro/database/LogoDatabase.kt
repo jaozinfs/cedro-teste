@@ -15,13 +15,16 @@ abstract class LogoDatabase : RoomDatabase() {
     companion object {
         var INSTANCE: LogoDatabase? = null
 
-        fun getAppDataBase(context: Context): LogoDatabase? {
-            if (INSTANCE == null){
-                synchronized(LogoDatabase::class){
-                    INSTANCE = Room.databaseBuilder(context.applicationContext, LogoDatabase::class.java, "database").build()
+        fun  getAppDataBase(context: Context): LogoDatabase? {
+            synchronized(this){
+                if (INSTANCE == null) {
+                    synchronized(LogoDatabase::class) {
+                        INSTANCE =
+                            Room.databaseBuilder(context.applicationContext, LogoDatabase::class.java, "database").build()
+                    }
                 }
+                return INSTANCE
             }
-            return INSTANCE
         }
 
         fun destroyDataBase(){

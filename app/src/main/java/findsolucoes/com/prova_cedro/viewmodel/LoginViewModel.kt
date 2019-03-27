@@ -1,30 +1,24 @@
 package findsolucoes.com.prova_cedro.viewmodel
 
 import android.app.Application
-import android.util.Log
-import android.util.MutableBoolean
+import android.text.TextUtils
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import com.jakewharton.retrofit2.adapter.rxjava2.HttpException
-import findsolucoes.com.prova_cedro.R
 import findsolucoes.com.prova_cedro.data.login.LoginCallback
 import findsolucoes.com.prova_cedro.data.login.LoginCredentials
 import findsolucoes.com.prova_cedro.data.login.LoginResponse
-import findsolucoes.com.prova_cedro.entites.UserEntity
 import findsolucoes.com.prova_cedro.repositories.LoginRepository
 import findsolucoes.com.prova_cedro.repositories.LogindataRepository
+import findsolucoes.com.prova_cedro.utils.Utils
 
 
 class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
     private var loginRopo: LoginRepository? = null
     private var progressState  = MutableLiveData<Boolean>()
-    private var toastMessage = MutableLiveData<Boolean>()
     private var logindataRepository: LogindataRepository? = null
-    private lateinit var apc: Application
-    //
+    private var apc: Application
     private var messageToast =  MutableLiveData<String>()
 
 
@@ -40,6 +34,8 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
     fun login(loginCredentials: LoginCredentials){
         progressState.value = true
+
+        verifyCredentials(loginCredentials)
 
         logindataRepository!!.loginRequest(loginCredentials, object : LoginCallback {
             override fun loginResponse(loginResponse: LoginResponse) {
@@ -65,6 +61,30 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
     //
     fun getProgressState() : LiveData<Boolean> = progressState
-    fun getToastError() : LiveData<String> = messageToast
+    fun getToastMessage() : LiveData<String> = messageToast
+
+
+    /**
+     * Verify credentials
+     */
+    fun verifyCredentials(credentials: LoginCredentials){
+        //strings errors
+        val error_invalid_email = apc.getString(findsolucoes.com.prova_cedro.R.string.error_invalid_email)
+        val error_invalid_password = apc.getString(findsolucoes.com.prova_cedro.R.string.error_invalid_password)
+
+
+        if(TextUtils.isEmpty(credentials.email) ||
+            !android.util.Patterns.EMAIL_ADDRESS.matcher(credentials.email).matches()){
+            messageToast.value = error_invalid_email
+            return
+        }
+
+//        if(Utils.isLegalPassword(credentials.password)){
+//
+//
+//        }
+    }
+
+
 
 }

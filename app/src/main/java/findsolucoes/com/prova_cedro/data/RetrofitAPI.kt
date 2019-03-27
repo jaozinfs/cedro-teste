@@ -5,6 +5,8 @@ import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import findsolucoes.com.prova_cedro.R
 import findsolucoes.com.prova_cedro.data.login.LoginCredentials
 import findsolucoes.com.prova_cedro.data.login.LoginResponse
+import findsolucoes.com.prova_cedro.data.register.RegisterCredentials
+import findsolucoes.com.prova_cedro.data.register.RegisterResponse
 import io.reactivex.Observable
 import io.reactivex.internal.operators.observable.ObservableAll
 import okhttp3.OkHttpClient
@@ -16,6 +18,11 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 class RetrofitAPI(resources: Resources) : LogoDatasource{
+
+    override fun registerRequest(registerCredentials: RegisterCredentials): Observable<RegisterResponse> {
+        return logoDatasource.registerRequest(registerCredentials)
+    }
+
     override fun loginRequest(loginCredentials: LoginCredentials): Observable<LoginResponse> {
         return logoDatasource.loginRequest(loginCredentials)
     }
@@ -35,7 +42,7 @@ class RetrofitAPI(resources: Resources) : LogoDatasource{
             .readTimeout(30, TimeUnit.SECONDS)
             .build()
 
-        val retrofit : Retrofit = Retrofit.Builder()
+        val retrofit: Retrofit = Retrofit.Builder()
             .baseUrl(url)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
