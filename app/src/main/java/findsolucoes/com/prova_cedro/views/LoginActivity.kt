@@ -21,6 +21,7 @@ import com.google.android.material.button.MaterialButton
 import findsolucoes.com.prova_cedro.R
 import findsolucoes.com.prova_cedro.data.login.LoginCredentials
 import kotlinx.android.synthetic.main.activity_login.*
+import kotlinx.android.synthetic.main.activity_register.*
 
 
 class LoginActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner {
@@ -35,15 +36,6 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner 
         // setup viewmodel contract
         viewModel = ViewModelProviders.of(this).get(LoginViewModel::class.java)
 
-    }
-
-    override fun onStart() {
-        super.onStart()
-
-        //set click action
-        email_sign_in_button.setOnClickListener(this)
-        action_register.setOnClickListener(this)
-
         //current state of progress view
         viewModel.getProgressState().observe(this , Observer { state ->
             if(state) showProgress()
@@ -54,12 +46,24 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner 
         viewModel.getToastMessage().observe(this, Observer { toastMessage ->
             showToast(toastMessage)
         })
+        //input errors in edittext
+        viewModel.getInputEmailMessage().observe(this, Observer { cause-> setInputErrorEmail(cause)})
+        viewModel.getInputPasswordMessage().observe(this, Observer { cause-> setInputErrorPassword(cause)})
+        viewModel.getIsClearInputMessages().observe(this, Observer { clearInputs()})
+
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        //set click action
+        email_sign_in_button.setOnClickListener(this)
+        action_register.setOnClickListener(this)
+
     }
 
     //onclick actions
     override fun onClick(v: View?) {
-
-
         if(v!!.id == email_sign_in_button.id){
             onLoginClick()
         }else if(v!!.id == action_register.id){
@@ -68,9 +72,7 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner 
     }
 
     //show message in toast from viewmodel
-    private fun showToast(toastMessage: String?) {
-        Toast.makeText(this, toastMessage, Toast.LENGTH_LONG).show()
-    }
+    private fun showToast(toastMessage: String?) {Toast.makeText(this, toastMessage, Toast.LENGTH_LONG).show() }
 
     //login bt click
     fun onLoginClick(){
@@ -96,5 +98,19 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner 
     //load wait progress stop
     private fun stopProgress(){
         login_progress.visibility = View.GONE
+    }
+
+    //set input error
+    private fun setInputErrorEmail(message: String){
+        register_input_email.error = message
+    }
+    private fun setInputErrorPassword(message: String){
+        register_input_password.error = message
+    }
+
+    //clear inputs
+    private fun clearInputs(){
+        login_input_email.error = null
+        login_input_password.error = null
     }
 }

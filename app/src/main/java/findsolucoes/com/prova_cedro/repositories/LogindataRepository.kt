@@ -1,8 +1,6 @@
 package findsolucoes.com.prova_cedro.repositories
 
 import android.app.Application
-import android.content.res.Resources
-import android.util.Log
 import com.google.gson.JsonParser
 import com.jakewharton.retrofit2.adapter.rxjava2.HttpException
 import findsolucoes.com.prova_cedro.data.RetrofitAPI
@@ -15,11 +13,11 @@ import java.util.concurrent.TimeUnit
 class LogindataRepository(application : Application){
 
     private var retrofitAPI: RetrofitAPI
-    private var LoginRepository: LoginRepository
+    private var LoginRepository: UserRepository
 
     init {
         retrofitAPI = RetrofitAPI(application.resources)
-        LoginRepository = LoginRepository(application)
+        LoginRepository = UserRepository(application)
     }
 
     /**

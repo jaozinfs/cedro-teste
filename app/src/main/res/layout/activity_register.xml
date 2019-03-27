@@ -117,11 +117,11 @@
                 android:id="@+id/register_button"
                 android:layout_width="match_parent"
                 android:layout_marginTop="10dp"
-                android:layout_height="40dp"
+                android:layout_height="55dp"
                 android:text="@string/bt_action_register"
                 android:textColor="@color/text_light"
                 android:fontFamily="sans-serif"
-                android:background="@drawable/login_bg_layout_gradient"
+                style="@style/RegisterButtonStyle"
         />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

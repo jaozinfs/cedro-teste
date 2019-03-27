@@ -2,25 +2,21 @@ package findsolucoes.com.prova_cedro.viewmodel
 
 import android.app.Application
 import android.text.TextUtils
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import findsolucoes.com.prova_cedro.data.login.LoginCallback
-import findsolucoes.com.prova_cedro.data.login.LoginCredentials
-import findsolucoes.com.prova_cedro.data.login.LoginResponse
+import findsolucoes.com.prova_cedro.R
+import findsolucoes.com.prova_cedro.data.login.LoginUserCallback
 import findsolucoes.com.prova_cedro.data.register.RegisterCallback
 import findsolucoes.com.prova_cedro.data.register.RegisterCredentials
 import findsolucoes.com.prova_cedro.data.register.RegisterResponse
-import findsolucoes.com.prova_cedro.repositories.LoginRepository
-import findsolucoes.com.prova_cedro.repositories.LogindataRepository
+import findsolucoes.com.prova_cedro.entites.UserEntity
+import findsolucoes.com.prova_cedro.repositories.UserRepository
 import findsolucoes.com.prova_cedro.repositories.RegisterdataRepository
-import findsolucoes.com.prova_cedro.utils.Utils
-import javax.xml.transform.Templates
 
 class RegisterViewModel(application: Application) : AndroidViewModel(application) {
 
-    private lateinit var registerdataRepository: RegisterdataRepository
+    private var registerdataRepository: RegisterdataRepository = RegisterdataRepository(application)
     private var progressState  = MutableLiveData<Boolean>()
     private var apc: Application
     private var messageToast =  MutableLiveData<String>()
@@ -28,10 +24,10 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
     private var messageInputEmail =  MutableLiveData<String>()
     private var messageInputPassword =  MutableLiveData<String>()
     private var clearInputErrors = MutableLiveData<Boolean>()
-
+    private val loginRepository: UserRepository = UserRepository(application)
+    private val registerSucessFull = MutableLiveData<Boolean>()
 
     init {
-        registerdataRepository = RegisterdataRepository(application)
         progressState = MutableLiveData()
         apc = application
     }
@@ -57,9 +53,16 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
         registerdataRepository.requestRegister(registerCredentials, object : RegisterCallback {
             override fun registerResponse(registerResponse: RegisterResponse) {
                 progressState.value = false
-                Log.d("TAG", "Message: ${registerResponse.message}")
-                Log.d("TAG", "Token: ${registerResponse.token}")
-                Log.d("TAG", "Type: ${registerResponse.type}")
+
+                //delete all user from table
+                deleteUser(object : LoginUserCallback{
+                    override fun onSucess() {
+                        //create user
+                        createUser(registerCredentials, registerResponse.token)
+                    }
+                    override fun onError(error: Throwable) { messageToast.value = apc.getString(R.string.internal_error)}
+                })
+
             }
             override fun registerError(error: Throwable, cause: String) {
                 progressState.value = false
@@ -70,24 +73,13 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
                     error.message.equals("Invalid name") -> messageInputName.value = cause
                     error.message.equals("Invalid email") -> messageInputEmail.value = cause
                     error.message.equals("Invalid password") -> messageInputPassword.value = cause
+                    error.message.equals("Duplicate key for property email: ${registerCredentials.email}") -> messageInputEmail.value = error.message
                 }
                 return
             }})
     }
 
-    //viewmodel state of uiview
-    //progress wait
-    fun getProgressState() : LiveData<Boolean> = progressState
-    //message in toast
-    fun getToastMessage() : LiveData<String> = messageToast
-    fun getInputNameMessage() : LiveData<String> = messageInputName
-    fun getInputEmailMessage() : LiveData<String> = messageInputEmail
-    fun getInputPasswordMessage() : LiveData<String> = messageInputPassword
-    fun getIsClearInputMessages() : LiveData<Boolean> = clearInputErrors
-
-    /**
-     * Verify credentials
-     */
+    //verify credentials
     fun verifyCredentials(registerCredentials: RegisterCredentials): Boolean{
         //strings errors
         val error_invalid_name = apc.getString(findsolucoes.com.prova_cedro.R.string.error_invalid_name)
@@ -109,10 +101,44 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
         }
         if(TextUtils.isEmpty(registerCredentials.password)){
             messageToast.value = error_invalid_password
-            messageInputName.value = error_invalid_password
-
+            messageInputPassword.value = error_invalid_password
             return false
         }
+
         return true
     }
+
+    //add user in database
+    fun createUser(registerCredentials: RegisterCredentials, token: String){
+        //database repository
+        loginRepository.insertUser(UserEntity(0,
+            registerCredentials.name,
+            registerCredentials.email, token), object : LoginUserCallback{
+            override fun onSucess() {
+                registerSucessFull.value = true
+            }
+
+            override fun onError(error: Throwable) { messageToast.value = apc.getString(R.string.internal_error) }})
+
+    }
+
+    //delete user from table to create another
+    fun deleteUser(loginUserCallback: LoginUserCallback){
+        loginRepository.deleteUser(loginUserCallback)
+    }
+
+
+    //////////////////////////////
+    //viewmodel state of uiview///
+    //////////////////////////////
+
+    //progress wait
+    fun getProgressState() : LiveData<Boolean> = progressState
+    //message in toast
+    fun getToastMessage() : LiveData<String> = messageToast
+    fun getInputNameMessage() : LiveData<String> = messageInputName
+    fun getInputEmailMessage() : LiveData<String> = messageInputEmail
+    fun getInputPasswordMessage() : LiveData<String> = messageInputPassword
+    fun getIsClearInputMessages() : LiveData<Boolean> = clearInputErrors
+    fun registerSucessFull() : LiveData<Boolean> = registerSucessFull
 }

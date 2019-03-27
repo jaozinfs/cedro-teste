@@ -43,15 +43,29 @@
             app:layout_constraintStart_toStartOf="parent"
             android:layout_marginTop="5dp"
     />
-    <TextView
-            android:text="@string/action_register"
-            android:textColor="@color/text_light"
-            android:layout_width="wrap_content"
-            android:fontFamily="sans-serif"
-            android:layout_height="wrap_content" android:id="@+id/action_register" app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginEnd="8dp" android:layout_marginBottom="8dp"
-            app:layout_constraintBottom_toBottomOf="@+id/linearLayout" app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginStart="8dp"/>
+    <RelativeLayout
+            android:id="@+id/action_register"
+            android:layout_width="match_parent"
+            android:layout_height="50dp" android:background="@color/bottom_box_shadow"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+        <LinearLayout android:layout_width="120dp"
+                      android:layout_height="35dp"
+                      android:layout_centerInParent="true"
+                      android:gravity="center">
+
+            <TextView
+                    android:text="@string/action_register"
+                    android:textColor="@color/text_light"
+                    android:layout_width="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:layout_height="wrap_content"
+            />
+        </LinearLayout>
+
+    </RelativeLayout>
+
 
     <com.google.android.material.button.MaterialButton
             android:id="@+id/email_sign_in_button"
@@ -86,8 +100,12 @@
             android:focusable="true"
             android:focusableInTouchMode="true" android:id="@+id/linearLayout2">
         <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/login_input_email"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:theme="@style/EditScreenTextInputLayoutStyle"
+                android:layout_height="wrap_content"
+                app:boxStrokeColor="@color/text_light"
+                android:textColorHint="@color/text_light">
 
             <AutoCompleteTextView
                     android:id="@+id/email"
@@ -97,6 +115,7 @@
                     android:inputType="textEmailAddress"
                     android:gravity="center_horizontal"
                     android:maxLines="1"
+                    android:textColor="@color/text_light"
                     android:imeOptions="actionNext"
                     android:nextFocusUp="@id/password"
                     android:nextFocusLeft="@id/password"
@@ -104,10 +123,14 @@
 
         </com.google.android.material.textfield.TextInputLayout>
         <com.google.android.material.textfield.TextInputLayout
+
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/textInputLayout"
-                tools:layout_editor_absoluteY="56dp">
+                android:id="@+id/login_input_password"
+                android:theme="@style/EditScreenTextInputLayoutStyle"
+                app:boxStrokeColor="@color/text_light"
+                tools:layout_editor_absoluteY="56dp"
+                android:textColorHint="@color/text_light">
 
             <EditText
                     android:id="@+id/password"
@@ -119,6 +142,7 @@
                     android:imeOptions="actionUnspecified"
                     android:inputType="textPassword"
                     android:maxLines="1"
+                    android:textColor="@color/text_light"
                     android:gravity="center_horizontal"
                     android:singleLine="true"/>
 

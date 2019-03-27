@@ -8,23 +8,24 @@ import androidx.lifecycle.MutableLiveData
 import findsolucoes.com.prova_cedro.data.login.LoginCallback
 import findsolucoes.com.prova_cedro.data.login.LoginCredentials
 import findsolucoes.com.prova_cedro.data.login.LoginResponse
-import findsolucoes.com.prova_cedro.repositories.LoginRepository
+import findsolucoes.com.prova_cedro.repositories.UserRepository
 import findsolucoes.com.prova_cedro.repositories.LogindataRepository
-import findsolucoes.com.prova_cedro.utils.Utils
 
 
 class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
-    private var loginRopo: LoginRepository? = null
+    private var userRopo: UserRepository? = null
     private var progressState  = MutableLiveData<Boolean>()
     private var logindataRepository: LogindataRepository? = null
     private var apc: Application
     private var messageToast =  MutableLiveData<String>()
-
+    private var messageInputEmail =  MutableLiveData<String>()
+    private var messageInputPassword =  MutableLiveData<String>()
+    private var clearInputErrors = MutableLiveData<Boolean>()
 
     init {
 
-        loginRopo = LoginRepository(application)
+        userRopo = UserRepository(application)
         progressState = MutableLiveData()
         logindataRepository = LogindataRepository(application)
         apc = application
@@ -34,6 +35,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
     fun login(loginCredentials: LoginCredentials){
         progressState.value = true
+        clearInputErrors.value = true
 
         verifyCredentials(loginCredentials)
 
@@ -62,27 +64,31 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     //
     fun getProgressState() : LiveData<Boolean> = progressState
     fun getToastMessage() : LiveData<String> = messageToast
-
+    fun getInputEmailMessage() : LiveData<String> = messageInputEmail
+    fun getInputPasswordMessage() : LiveData<String> = messageInputPassword
+    fun getIsClearInputMessages() : LiveData<Boolean> = clearInputErrors
 
     /**
      * Verify credentials
      */
-    fun verifyCredentials(credentials: LoginCredentials){
+    fun verifyCredentials(credentials: LoginCredentials) : Boolean{
         //strings errors
         val error_invalid_email = apc.getString(findsolucoes.com.prova_cedro.R.string.error_invalid_email)
-        val error_invalid_password = apc.getString(findsolucoes.com.prova_cedro.R.string.error_invalid_password)
+        val error_empty_password = apc.getString(findsolucoes.com.prova_cedro.R.string.error_empty_password)
 
 
         if(TextUtils.isEmpty(credentials.email) ||
             !android.util.Patterns.EMAIL_ADDRESS.matcher(credentials.email).matches()){
-            messageToast.value = error_invalid_email
-            return
+            messageInputEmail.value = error_invalid_email
+            return false
         }
 
-//        if(Utils.isLegalPassword(credentials.password)){
-//
-//
-//        }
+        if(TextUtils.isEmpty(credentials.password)){
+            messageInputPassword.value = error_empty_password
+            return false
+        }
+
+        return true
     }
 
 

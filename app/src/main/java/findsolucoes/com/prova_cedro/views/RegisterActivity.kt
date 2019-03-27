@@ -1,6 +1,8 @@
 package findsolucoes.com.prova_cedro.views
 
 import android.os.Bundle
+import android.util.Log
+import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -8,6 +10,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import findsolucoes.com.prova_cedro.R
 import findsolucoes.com.prova_cedro.data.register.RegisterCredentials
+import findsolucoes.com.prova_cedro.repositories.UserRepository
 import findsolucoes.com.prova_cedro.viewmodel.LoginViewModel
 import findsolucoes.com.prova_cedro.viewmodel.RegisterViewModel
 import kotlinx.android.synthetic.main.activity_login.*
@@ -29,6 +32,9 @@ class RegisterActivity : AppCompatActivity(), View.OnClickListener {
     override fun onStart() {
         super.onStart()
 
+        //config toolbar
+        configToolbar()
+
         //click listener
         register_button.setOnClickListener(this)
 
@@ -47,6 +53,7 @@ class RegisterActivity : AppCompatActivity(), View.OnClickListener {
         viewModel.getInputEmailMessage().observe(this, Observer { cause-> setInputErrorEmail(cause)})
         viewModel.getInputPasswordMessage().observe(this, Observer { cause-> setInputErrorPassword(cause)})
         viewModel.getIsClearInputMessages().observe(this, Observer { clearInputs()})
+        viewModel.registerSucessFull().observe(this, Observer { registerSucessFull() })
     }
 
     //onclick actions
@@ -66,10 +73,12 @@ class RegisterActivity : AppCompatActivity(), View.OnClickListener {
 
     //load wait progress show
     private fun showProgress(){
+        register_button.isEnabled = false
         register_progress.visibility = View.VISIBLE
     }
     //load wait progress stop
     private fun stopProgress(){
+        register_button.isEnabled = true
         register_progress.visibility = View.GONE
     }
     //show message in toast from viewmodel
@@ -95,5 +104,21 @@ class RegisterActivity : AppCompatActivity(), View.OnClickListener {
         register_input_password.error = null
     }
 
+    private fun registerSucessFull(){
+        Log.d("TAG", "Register sucess and user is: ${UserRepository(application).getUser().name}")
+    }
+
+    //config title and arrow back toolbar
+    private fun configToolbar(){
+        supportActionBar?.title = ""
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowHomeEnabled(true)
+
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        if (item!!.itemId == android.R.id.home)finish()
+        return super.onOptionsItemSelected(item)
+    }
 
 }
