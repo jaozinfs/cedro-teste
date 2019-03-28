@@ -2,6 +2,7 @@ package findsolucoes.com.prova_cedro
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -73,7 +74,7 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener {
 
                 {
 
-                   Log.d("ASSA", "ASSA: ${it.string()}")
+                    imgv.setImageBitmap(BitmapFactory.decodeStream(it.byteStream()))
                 },
 
                 {
