@@ -18,6 +18,7 @@ import findsolucoes.com.prova_cedro.viewmodel.LoginViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import com.google.android.material.button.MaterialButton
+import findsolucoes.com.prova_cedro.MainActivity
 import findsolucoes.com.prova_cedro.R
 import findsolucoes.com.prova_cedro.data.login.LoginCredentials
 import kotlinx.android.synthetic.main.activity_login.*
@@ -50,6 +51,9 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner 
         viewModel.getInputEmailMessage().observe(this, Observer { cause-> setInputErrorEmail(cause)})
         viewModel.getInputPasswordMessage().observe(this, Observer { cause-> setInputErrorPassword(cause)})
         viewModel.getIsClearInputMessages().observe(this, Observer { clearInputs()})
+        viewModel.loginSucessfull().observe(this, Observer {
+            startActivity(Intent(application, MainActivity::class.java))
+        })
 
     }
 
@@ -76,11 +80,11 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner 
 
     //login bt click
     fun onLoginClick(){
-        //
+        //get credentials login
         val emailCred = email.text.toString()
         val passwordCred = password.text.toString()
 
-        //
+        //start login
         viewModel.login(LoginCredentials(emailCred, passwordCred))
     }
 
@@ -102,10 +106,10 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner 
 
     //set input error
     private fun setInputErrorEmail(message: String){
-        register_input_email.error = message
+        login_input_email.error = message
     }
     private fun setInputErrorPassword(message: String){
-        register_input_password.error = message
+        login_input_password.error = message
     }
 
     //clear inputs

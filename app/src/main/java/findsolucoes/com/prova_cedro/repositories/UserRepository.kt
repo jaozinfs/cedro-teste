@@ -11,12 +11,9 @@ import findsolucoes.com.prova_cedro.entites.UserEntity
 
 class UserRepository(application: Application){
     private var userDao: UserDao? = null
-    private lateinit var retrofitAPI: RetrofitAPI
-
     init {
         val db = LogoDatabase.getAppDataBase(application)
         userDao = db!!.userDao()
-        retrofitAPI = RetrofitAPI(application.resources)
     }
 
     //add user with callback

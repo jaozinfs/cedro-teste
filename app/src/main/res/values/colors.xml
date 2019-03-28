@@ -14,5 +14,8 @@
     <color name="text_light">#FFF</color>
     <color name="bottom_box_shadow">#32000000</color>
 
+    <!-- app colors -->
+    <color name="color_header">#E9E9E9</color>
+
 
 </resources>

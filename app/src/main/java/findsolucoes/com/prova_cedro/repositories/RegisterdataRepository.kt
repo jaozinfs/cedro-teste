@@ -17,7 +17,7 @@ class RegisterdataRepository(application : Application){
     private var retrofitAPI: RetrofitAPI
     private var apc: Application = application
     init {
-        retrofitAPI = RetrofitAPI(application.resources)
+        retrofitAPI = RetrofitAPI(application)
     }
 
 

@@ -25,5 +25,18 @@
     <!-- Strings related to register -->
     <string name="prompt_name">Nome</string>
     <string name="bt_action_register">Registrar</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="title_section1">Section 1</string>
+    <string name="title_section2">Section 2</string>
+    <string name="title_section3">Section 3</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="action_example">Example action</string>
+    <string name="action_settings">Settings</string>
+
+    <!-- Main Activity Header -->
+    <string name="header_title">Favoritos</string>
+    <string name="open_drawer">Abrir</string>
+    <string name="close_drawer">Fechar</string>
 
 </resources>

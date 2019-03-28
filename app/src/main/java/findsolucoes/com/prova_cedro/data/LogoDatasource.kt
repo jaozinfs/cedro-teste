@@ -8,8 +8,7 @@ import io.reactivex.internal.operators.observable.ObservableAll
 import okhttp3.Credentials
 import okhttp3.ResponseBody
 import retrofit2.Call
-import retrofit2.http.Body
-import retrofit2.http.POST
+import retrofit2.http.*
 
 interface LogoDatasource {
 
@@ -18,5 +17,8 @@ interface LogoDatasource {
 
     @POST("register")
     fun registerRequest(@Body registerCredentials: RegisterCredentials) : Observable<RegisterResponse>
+
+    @GET("logo/{url}")
+    fun searchLogoFromUrl(@Path("url") url : String, @Header("authorization") token : String?) : Observable<ResponseBody>
 
 }

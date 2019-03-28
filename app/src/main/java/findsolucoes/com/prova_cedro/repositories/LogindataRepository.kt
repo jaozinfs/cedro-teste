@@ -16,7 +16,7 @@ class LogindataRepository(application : Application){
     private var LoginRepository: UserRepository
 
     init {
-        retrofitAPI = RetrofitAPI(application.resources)
+        retrofitAPI = RetrofitAPI(application)
         LoginRepository = UserRepository(application)
     }
 
