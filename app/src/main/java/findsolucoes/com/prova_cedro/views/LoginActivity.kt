@@ -2,27 +2,17 @@ package findsolucoes.com.prova_cedro.views
 
 
 import android.content.Intent
-import android.os.Build.VERSION_CODES.O
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
-import android.widget.TextView
 import android.widget.Toast
-import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProviders
-import findsolucoes.com.prova_cedro.database.LogoDatabase
-import findsolucoes.com.prova_cedro.dao.UserDao
 import findsolucoes.com.prova_cedro.viewmodel.LoginViewModel
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
-import com.google.android.material.button.MaterialButton
-import findsolucoes.com.prova_cedro.MainActivity
 import findsolucoes.com.prova_cedro.R
 import findsolucoes.com.prova_cedro.data.login.LoginCredentials
 import kotlinx.android.synthetic.main.activity_login.*
-import kotlinx.android.synthetic.main.activity_register.*
 
 
 class LoginActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner {

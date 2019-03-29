@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+        android:id="@+id/bottom_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:behavior_hideable="true"
+        app:behavior_peekHeight="56dp"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent"
+        xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/text_light"
+            android:orientation="vertical"
+            android:paddingBottom="10dp">
+        <TextView
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_gravity="center"
+                android:background="@color/colorPrimary"
+                android:gravity="center"
+                android:fontFamily="sans-serif"
+                android:text="@string/bottom_sheet_header_title"
+                android:textColor="@android:color/white"
+                android:textSize="22sp"/>
+
+
+        <com.google.android.material.textfield.TextInputLayout
+
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_margin="30dp"
+                android:theme="@style/BottomSheetEd"
+                android:textColorHint="@color/colorPrimary"
+                android:layout_height="wrap_content">
+
+            <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/activity_main_bottomsheet_email"
+                    android:layout_width="match_parent"
+                    android:textColor="@color/colorPrimary"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/prompt_email" />
+        </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputLayout
+
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_margin="30dp"
+                android:theme="@style/BottomSheetEd"
+                android:textColorHint="@color/colorPrimary"
+                android:layout_height="wrap_content">
+
+            <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/activity_main_bottomsheet_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorPrimary"
+                    android:hint="@string/prompt_password" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <RelativeLayout android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+            <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_margin="30dp"
+                    android:theme="@style/BottomSheetEd"
+                    android:textColorHint="@color/colorPrimary"
+                    android:layout_height="wrap_content"
+                    android:layout_toStartOf="@+id/activity_main_bottomsheet_image"
+                    android:layout_marginRight="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/activity_main_bottomsheet_url"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/colorPrimary"
+                        android:hint="@string/prompt_url" />
+            </com.google.android.material.textfield.TextInputLayout>
+            <ImageView android:id="@+id/activity_main_bottomsheet_image"
+                       android:layout_width="50dp"
+                       android:layout_height="50dp"
+                       android:layout_alignParentEnd="true"
+                       android:layout_centerVertical="true"
+                       android:layout_marginEnd="30dp"/>
+        </RelativeLayout>
+
+        <com.google.android.material.button.MaterialButton
+                android:id="@+id/activity_main_bottomsheet_save"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginStart="80dp"
+                android:layout_marginEnd="80dp"
+                android:backgroundTint="@color/text_light"
+                android:textColor="@color/colorPrimary"
+                android:text="@string/prompt_save"
+        />
+    </LinearLayout>
+
+
+</androidx.core.widget.NestedScrollView>

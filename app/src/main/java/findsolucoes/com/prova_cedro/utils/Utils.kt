@@ -1,23 +1,22 @@
 package findsolucoes.com.prova_cedro.utils
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import java.io.InputStream
+import java.util.stream.BaseStream
+
 class Utils{
 
     companion object {
 
-
-        fun isLegalPassword(pass: String): Int {
-
-            if (!pass.matches(".*[A-Z].*".toRegex())) return 1
-
-            if (!pass.matches(".*[a-z].*".toRegex())) return 2
-
-            if (!pass.matches(".*\\d.*".toRegex())) return 3
-
-            if (!pass.matches(".*[~!.......].*".toRegex())) return 4
-
-            if (pass.length <= 9) return 5
-
-            return 0
+        //Return bitmap from inputStream
+       fun createBitmapFromInputStream(inputStream: InputStream) : Bitmap?{
+            try{
+                return BitmapFactory.decodeStream(inputStream)
+            }catch (err : Throwable){
+                err.printStackTrace()
+            }
+            return null
         }
     }
 

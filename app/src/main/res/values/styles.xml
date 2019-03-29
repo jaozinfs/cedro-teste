@@ -19,8 +19,12 @@
 
     <!-- lab's login-->
     <style name="EditScreenTextInputLayoutStyle" parent="Theme.AppCompat.Light.NoActionBar">
-    <item name="colorControlNormal">@color/text_light</item>
-    <item name="colorControlActivated">@color/login_bg_gradient_center_color</item>
-</style>
+        <item name="colorControlNormal">@color/text_light</item>
+        <item name="colorControlActivated">@color/login_bg_gradient_center_color</item>
+    </style>
+
+    <style name="BottomSheetEd" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
+        <item name="boxStrokeColor">@color/bottosheet_ed_colors</item>
+    </style>
 
 </resources>

@@ -5,35 +5,40 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="100dp">
-    <ImageView
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:id="@+id/listmodel_activity_main_nav_header_imgv" tools:srcCompat="@tools:sample/avatars"
-            android:layout_alignParentEnd="true"
-            android:background="@drawable/ic_launcher_background"
-            android:layout_centerVertical="true"
-            android:layout_marginEnd="16dp"
-    />
-    <RatingBar
-            android:id="@+id/listmodel_activity_main_nav_header_starbar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:numStars="3"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="3dp"
-            android:translationX="-20dp"
-            android:layout_below="@+id/listmodel_activity_main_nav_header_url"
-            android:scaleX="0.5"
-            android:scaleY="0.5"/>
 
-    <TextView android:id="@+id/listmodel_activity_main_nav_header_url"
-              android:layout_marginStart="16dp"
-              android:layout_marginTop="10dp"
-              android:textSize="13sp"
-              android:layout_width="match_parent" android:layout_height="wrap_content"
-              android:text="www.google.com"/>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:weightSum="2">
+        <RelativeLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="0.8">
+            <RelativeLayout android:id="@+id/rlv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginStart="16dp">
+                <ProgressBar android:id="@+id/listmodel_activity_main_nav_header_progress"
+                             android:layout_width="25dp"
+                             android:layout_height="25dp"
+                             android:layout_centerInParent="true"/>
+                <ImageView
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:id="@+id/listmodel_activity_main_nav_header_imgv"
+                        tools:srcCompat="@tools:sample/avatars"
 
+                />
 
+            </RelativeLayout>
+
+        </RelativeLayout>
+        <RelativeLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1.2">
+            <TextView android:id="@+id/listmodel_activity_main_nav_header_url"
+                      android:layout_marginEnd="16dp"
+                      android:layout_centerVertical="true"
+                      android:textSize="13sp"
+                      android:layout_alignParentEnd="true"
+                      android:layout_marginStart="10dp"
+                      android:gravity="center"
+                      android:layout_width="match_parent" android:layout_height="wrap_content"
+                      android:text="www.google.com"/>
+        </RelativeLayout>
+    </LinearLayout>
 </RelativeLayout>
