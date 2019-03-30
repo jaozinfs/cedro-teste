@@ -6,6 +6,7 @@ import android.text.TextUtils
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.recyclerview.selection.SelectionTracker
 import findsolucoes.com.prova_cedro.R
 import findsolucoes.com.prova_cedro.entites.WebsiteCredentialsEntity
 import findsolucoes.com.prova_cedro.repositories.WebsiteCredentialsRepository
@@ -20,6 +21,10 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     private val downloadLogo: DownloadImage = DownloadImage(application)
     private val imageNewWebsiteCredentials = MutableLiveData<Bitmap>()
     private val sucessSaveWebsiteCredentials = MutableLiveData<Boolean>()
+    private val deleteItemFloatActionButton = MutableLiveData<Boolean>()
+    private val editItemToolbar = MutableLiveData<Boolean>()
+    private val selectionCleared = MutableLiveData<Boolean>()
+
 
     //bottomsheet prompts
     private var messageInputEmail =  MutableLiveData<String>()
@@ -28,17 +33,12 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     private var clearPromptsMessage = MutableLiveData<Boolean>()
     private val apcContext = application
 
-    init {
-        listWebsiteCredentials.value = getAllWebsiteCredentials()
-    }
 
     //livedata websitecredentials list
-    fun getlistFavWebsiteCredentials() : LiveData<ArrayList<WebsiteCredentialsEntity>>{
-        return favListWebsiteCredentials
-    }
-    fun getlistWebsiteCredentials() : LiveData<ArrayList<WebsiteCredentialsEntity>>{
-        return listWebsiteCredentials
-    }
+    fun getlistFavWebsiteCredentials() : LiveData<ArrayList<WebsiteCredentialsEntity>> = favListWebsiteCredentials
+
+    fun getlistWebsiteCredentials() : LiveData<ArrayList<WebsiteCredentialsEntity>> = listWebsiteCredentials
+
     fun updateImageNewWebsiteCredentials() : LiveData<Bitmap> = imageNewWebsiteCredentials
 
     //bottomsheet sucess
@@ -63,9 +63,17 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     fun updateWebsiteCredentials(websiteCredentialsEntity: WebsiteCredentialsEntity){
         websiteCredentialsRepository.updateWebsiteCredentials(websiteCredentialsEntity)
     }
-    fun getAllWebsiteCredentials() : ArrayList<WebsiteCredentialsEntity>{
-        return websiteCredentialsRepository.getAllWebsiteCredentials()
+    fun populateFromDatabase(){
+        listWebsiteCredentials.value = websiteCredentialsRepository.getAllWebsiteCredentials()
     }
+
+    //recyclerview options when selectiontracker observer
+    fun setEditButtonToolbar() : LiveData<Boolean> = editItemToolbar
+    fun setDeleteItemFloatingActionButton() : LiveData<Boolean> = deleteItemFloatActionButton
+    fun selectionTrackerCleardSelections() : LiveData<Boolean> =  selectionCleared
+
+    //get all items from database
+    fun getListFromDatabase():ArrayList<WebsiteCredentialsEntity> = websiteCredentialsRepository.getAllWebsiteCredentials()
 
     // watcher url from bottomsheet
     fun watchUrl(s: CharSequence?) {
@@ -98,7 +106,33 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
             messageInputPassword.value = apcContext.getString(R.string.bottom_sheet_prompt_password_error)
             return
         }
+        websiteCredentialsRepository.insertWebsiteCredentials(WebsiteCredentialsEntity(0,url, email, password))
 
         sucessSaveWebsiteCredentials.value = true
+    }
+
+    //selectiontracker observer patterns
+    fun selectionTrackerObserver(selectionTracker: SelectionTracker<Long>) {
+        selectionTracker?.addObserver(
+            object : SelectionTracker.SelectionObserver<Long>() {
+                override fun onSelectionChanged() {
+                    super.onSelectionChanged()
+                    val items = selectionTracker?.selection!!.size()
+                    //nothing to do
+                    if (items > 2) return
+
+                    //no items selected
+                    if (items == 0) selectionCleared.value = true
+
+                    //one item select
+                    if(items == 1) {
+                        editItemToolbar.value = true
+                        deleteItemFloatActionButton.value = true
+                    }
+                    //more that one item selected
+                    if(items == 2) { editItemToolbar.value = false }
+                }
+
+            })
     }
 }

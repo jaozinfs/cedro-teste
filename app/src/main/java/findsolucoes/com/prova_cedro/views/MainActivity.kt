@@ -1,72 +1,63 @@
 package findsolucoes.com.prova_cedro.views
 
 import android.annotation.SuppressLint
-import android.content.res.Configuration
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import android.view.Gravity
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import androidx.appcompat.app.ActionBarDrawerToggle
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.core.widget.NestedScrollView
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.selection.SelectionTracker
+import androidx.recyclerview.selection.StorageStrategy
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import findsolucoes.com.prova_cedro.R
-import findsolucoes.com.prova_cedro.models.FavWebsiteCredentialsListAdapter
+import findsolucoes.com.prova_cedro.entites.WebsiteCredentialsEntity
 import findsolucoes.com.prova_cedro.models.WebsiteCredentialsListAdapter
+import findsolucoes.com.prova_cedro.models.tracker.WebsiteCredentialsKeyprovider
+import findsolucoes.com.prova_cedro.models.tracker.WebsiteCredentialsLoockup
+import findsolucoes.com.prova_cedro.models.tracker.WebsiteCredentialsPredicate
 import findsolucoes.com.prova_cedro.viewmodel.MainActivityViewModel
-import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main_bottom_sheet.*
 
 
-class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener, View.OnClickListener {
+class MainActivity : AppCompatActivity(),  View.OnClickListener {
 
 
-    //drawer options
-    override fun onDrawerStateChanged(newState: Int) {}
 
-    override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
-    override fun onDrawerOpened(drawerView: View) {}
-    @SuppressLint("WrongConstant")
-    override fun onDrawerClosed(drawerView: View) {
-        if (drawer_layout.isDrawerOpen(Gravity.LEFT or Gravity.START)) {
-            drawer_layout.closeDrawers()
-        }
-    }
 
-    override fun onConfigurationChanged(newConfig: Configuration?) {
-        super.onConfigurationChanged(newConfig)
-        actionBarDrawerToggle.onConfigurationChanged(newConfig)
-    }
-
-    override fun onPostCreate(savedInstanceState: Bundle?) {
-        // TODO Auto-generated method stub
-        super.onPostCreate(savedInstanceState)
-        actionBarDrawerToggle.syncState()
-    }
-
+    //selection tracker
+    private lateinit var selectionTracker : SelectionTracker<Long>
 
     //bottom sheet
     private lateinit var sheetBehavior: BottomSheetBehavior<NestedScrollView>
 
-    //toolbar views
-    private val toolbar: Toolbar? = null
-    private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
-
     //livedataList
     private lateinit var viewModel: MainActivityViewModel
 
-    private lateinit var adapterFavWebisiteCredentials: FavWebsiteCredentialsListAdapter
+    //adapter
     private lateinit var adapterWebisiteCredentials: WebsiteCredentialsListAdapter
 
+    //list websitecredentials
+    private var list = ArrayList<WebsiteCredentialsEntity>()
+
+    //button edit main menu
+    private   var editMenuItem: MenuItem? = null
+
+    //action to floating action button view
+    private enum class FloatingActionButtonAct{
+        ActionAdd,
+        ActionDelete
+    }
+    private var floatingActionButtonAct = FloatingActionButtonAct.ActionAdd
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,16 +70,14 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener, View.OnCl
         viewModel = ViewModelProviders.of(this).get(MainActivityViewModel::class.java)
 
         //config recyclerview
-        configFavRecyclerView()
         configMainRecyclerView()
         createBottomSheet()
+        configSelectionTracker(savedInstanceState)
 
         //obser livedatalist
-        viewModel.getlistFavWebsiteCredentials().observe(this, Observer { list ->
-            adapterFavWebisiteCredentials.updateList(list)
-        })
         viewModel.getlistWebsiteCredentials().observe(this, Observer { list ->
             adapterWebisiteCredentials.updateList(list)
+            this.list = adapterWebisiteCredentials.getList()
         })
 
         //observe bottomsheet url image bitmap when seearch
@@ -96,12 +85,22 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener, View.OnCl
             activity_main_bottomsheet_image.setImageBitmap(b)
         })
 
-        //observe prompt errors
+        //observe all items viewmodel
         viewModel.setErrorMessagePromptEmail().observe(this, Observer { cause-> setInputErrorEmail(cause)})
         viewModel.setErrorMessagePromptPassword().observe(this, Observer { cause-> setInputErrorPassword(cause)})
         viewModel.setErrorMessagePromptUrl().observe(this, Observer { cause-> setInputErrorUrl(cause)})
         viewModel.clearPromptsBottomSheetMessage().observe(this, Observer { clearInputs() })
         viewModel.sucessSaveWebsiteCredentials().observe(this, Observer { clearAndCloseBottomSheet() })
+        viewModel.setEditButtonToolbar().observe(this, Observer { state -> setEditButtonState(state) })
+        viewModel.selectionTrackerCleardSelections().observe(this, Observer { state -> selectionTrackerCleared()})
+        viewModel.setDeleteItemFloatingActionButton().observe(this, Observer { state-> setFloatingActionButtonState(state) })
+    }
+
+
+    //state bundle
+    override fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
+        selectionTracker.onSaveInstanceState(outState!!)
     }
 
     //start activity
@@ -109,12 +108,16 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener, View.OnCl
         super.onStart()
         activity_main_action_add.setOnClickListener(this)
         activity_main_bottomsheet_save.setOnClickListener(this)
+        viewModel.populateFromDatabase()
     }
 
     //onclick buttons of view
     override fun onClick(v: View?) {
         if (v!!.id == activity_main_action_add.id) {
-            expandCloseSheet()
+            when{
+                floatingActionButtonAct == FloatingActionButtonAct.ActionAdd -> expandCloseSheet()
+                floatingActionButtonAct == FloatingActionButtonAct.ActionDelete -> Toast.makeText(this, "Delete", Toast.LENGTH_LONG).show()
+            }
         }else if(v!!.id == activity_main_bottomsheet_save.id){
             viewModel.saveWebsiteCredentials(activity_main_bottomsheet_email.text.toString(),
                 activity_main_bottomsheet_password.text.toString(),
@@ -122,28 +125,20 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener, View.OnCl
         }
     }
 
+    //menu item
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        // Inflate the menu to use in the action bar
+        val inflater = menuInflater
+        inflater.inflate(R.menu.main, menu)
+        editMenuItem = menu.findItem(R.id.menu_action_edit)
+        return super.onCreateOptionsMenu(menu)
+    }
 
     //toolbar
     private fun configToolbar() {
         setSupportActionBar(findViewById(R.id.toolbar))
+    }
 
-        supportActionBar!!.setDisplayShowHomeEnabled(true)
-        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-        supportActionBar!!.setHomeAsUpIndicator(R.drawable.ic_drawer)
-        actionBarDrawerToggle =
-            ActionBarDrawerToggle(this, drawer_layout, toolbar,
-                R.string.open_drawer,
-                R.string.close_drawer
-            )
-        drawer_layout.addDrawerListener(actionBarDrawerToggle)
-        actionBarDrawerToggle.syncState()
-    }
-    //favorites recycler view
-    private fun configFavRecyclerView() {
-        adapterFavWebisiteCredentials = FavWebsiteCredentialsListAdapter(application)
-        main_activity_rv.layoutManager = LinearLayoutManager(applicationContext)
-        main_activity_rv.adapter = adapterFavWebisiteCredentials
-    }
     //main recycler view
     private fun configMainRecyclerView() {
         adapterWebisiteCredentials = WebsiteCredentialsListAdapter(application)
@@ -176,25 +171,6 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener, View.OnCl
             )
         )
     }
-    //menu options click
-
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
-            true
-        } else super.onOptionsItemSelected(item)
-    }
-    //android back button press
-    @SuppressLint("WrongConstant")
-    override fun onBackPressed() {
-        // TODO Auto-generated method stub
-        if (drawer_layout.isDrawerOpen(Gravity.LEFT or Gravity.START)) {
-            drawer_layout.closeDrawers()
-            return
-        }
-        super.onBackPressed()
-    }
-
 
 
     //bt click action with bottom sheet
@@ -243,6 +219,72 @@ class MainActivity : AppCompatActivity(), DrawerLayout.DrawerListener, View.OnCl
         activity_main_bottomsheet_url.setText("")
         activity_main_bottomsheet_password.setText("")
         activity_main_bottomsheet_email.setText("")
-        sheetBehavior!!.state = BottomSheetBehavior.STATE_COLLAPSED
+        activity_main_bottomsheet_image.setImageBitmap(null)
+        sheetBehavior!!.state = BottomSheetBehavior.STATE_HIDDEN
+        viewModel.populateFromDatabase()
+    }
+
+    //recyclerview selection tracker items interact config
+    private fun configSelectionTracker(savedInstanceState: Bundle?){
+        list = viewModel.getListFromDatabase()
+
+        selectionTracker = SelectionTracker.Builder<Long>(
+            "selectionTrackerKey",
+            main_activity_rv_saves_websitecredentials,
+            WebsiteCredentialsKeyprovider( list ),
+            WebsiteCredentialsLoockup( main_activity_rv_saves_websitecredentials ),
+            StorageStrategy.createLongStorage())
+            .withSelectionPredicate( WebsiteCredentialsPredicate() )
+            .build()
+        (main_activity_rv_saves_websitecredentials.adapter as WebsiteCredentialsListAdapter).selectionTracker = selectionTracker
+
+        //observe when user interact
+        selectionTrackerObserver()
+
+        if(savedInstanceState != null){
+            selectionTracker.onRestoreInstanceState( savedInstanceState )
+        }
+    }
+
+    //interact observer
+    fun selectionTrackerObserver(){
+        viewModel.selectionTrackerObserver(selectionTracker)
+    }
+    fun setEditButtonState(state: Boolean){
+
+        when{
+            state  -> editMenuItem?.isVisible = true
+            !state -> editMenuItem?.isVisible = false
+        }
+    }
+    fun setFloatingActionButtonState(state: Boolean){
+        when{
+            state  -> {
+                floatingActionButtonAct = FloatingActionButtonAct.ActionDelete
+                activity_main_action_add.setImageResource(R.drawable.ic_delete_24dp)
+            }
+            !state -> {
+                floatingActionButtonAct = FloatingActionButtonAct.ActionAdd
+                activity_main_action_add.setImageResource(R.drawable.ic_add_24dp)
+            }
+        }
+
+    }
+    private fun selectionTrackerCleared() {
+        editMenuItem?.isVisible = false
+        floatingActionButtonAct = FloatingActionButtonAct.ActionAdd
+        activity_main_action_add.setImageResource(R.drawable.ic_add_24dp)
+    }
+
+    //delete item click
+    fun deleteItemClick(){
+        val alertDialog = AlertDialog.Builder(applicationContext)
+        alertDialog.setTitle()
+        alertDialog.setMessage()
+
+        //click of alert
+        alertDialog.
+
+
     }
 }

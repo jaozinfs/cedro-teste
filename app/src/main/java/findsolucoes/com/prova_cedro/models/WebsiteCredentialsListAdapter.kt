@@ -1,17 +1,19 @@
 package findsolucoes.com.prova_cedro.models
 
 import android.app.Application
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.ProgressBar
-import android.widget.RatingBar
-import android.widget.TextView
+import android.widget.*
+import androidx.cardview.widget.CardView
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.widget.RecyclerView
 import findsolucoes.com.prova_cedro.R
 
 import findsolucoes.com.prova_cedro.entites.WebsiteCredentialsEntity
+import findsolucoes.com.prova_cedro.models.tracker.WebsiteCredentialsDetails
 import findsolucoes.com.prova_cedro.repositories.logo.DownloadImage
 
 
@@ -22,8 +24,8 @@ class WebsiteCredentialsListAdapter(val application: Application) : RecyclerView
 
     private val list: ArrayList<WebsiteCredentialsEntity> = ArrayList()
     private var mInflater: LayoutInflater = LayoutInflater.from(application)
-    val imageDownload : DownloadImage  = DownloadImage(application)
-    var ratingShow: Int = 0
+    private val imageDownload : DownloadImage  = DownloadImage(application)
+    lateinit var selectionTracker : SelectionTracker<Long>
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -36,10 +38,12 @@ class WebsiteCredentialsListAdapter(val application: Application) : RecyclerView
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-
-        holder.bindModel(list[position])
+        Log.d("as", "bind ${list[position].url}")
+        holder.bindModel(list[position], position)
         holder.imageV.tag = list[position]
     }
+
+
 
     override fun getItemId(position: Int): Long {
         return position.toLong()
@@ -50,23 +54,55 @@ class WebsiteCredentialsListAdapter(val application: Application) : RecyclerView
     }
 
     fun updateList(updatelist : ArrayList<WebsiteCredentialsEntity>){
-        list.clear()
-        list.addAll(updatelist)
-        notifyDataSetChanged()
-    }
 
-
-
-    class ViewHolder(itemView: View, val downloadImage: DownloadImage) : RecyclerView.ViewHolder(itemView) {
-
-        val imageV: ImageView = itemView.findViewById(findsolucoes.com.prova_cedro.R.id.listmodel_activity_main_nav_header_imgv)
-        val url: TextView = itemView.findViewById(findsolucoes.com.prova_cedro.R.id.listmodel_activity_main_nav_header_url)
-        val progress : ProgressBar = itemView.findViewById(findsolucoes.com.prova_cedro.R.id.listmodel_activity_main_nav_header_progress)
-
-        fun bindModel(websiteCredentialsEntity: WebsiteCredentialsEntity) {
-            url.text = websiteCredentialsEntity.url
-            downloadImage.requestDownloadImage(websiteCredentialsEntity.url, imageV, progress)
-
+        updatelist?.let {
+            this.list.clear()
+            this.list.addAll(updatelist)
+            this.notifyItemRangeChanged(0, updatelist.size - 1)
         }
     }
+
+    fun getList() : ArrayList<WebsiteCredentialsEntity> = list
+
+    inner class ViewHolder(itemView: View, val downloadImage: DownloadImage) : RecyclerView.ViewHolder(itemView) {
+
+        //
+        val imageV: ImageView = itemView.findViewById(findsolucoes.com.prova_cedro.R.id.listmodel_activity_main_nav_header_imgv)
+        val url: TextView = itemView.findViewById(findsolucoes.com.prova_cedro.R.id.listmodel_activity_main_nav_header_url)
+        val bg: LinearLayout = itemView.findViewById(R.id.listmodel_activity_main_nav_header_bg)
+
+        //
+        private val progress : ProgressBar = itemView.findViewById(findsolucoes.com.prova_cedro.R.id.listmodel_activity_main_nav_header_progress)
+        val websiteCredentialsDetails : WebsiteCredentialsDetails = WebsiteCredentialsDetails()
+
+        //
+        fun bindModel(websiteCredentialsEntity: WebsiteCredentialsEntity, position: Int) {
+            url.text = websiteCredentialsEntity.url
+            downloadImage.requestDownloadImage(websiteCredentialsEntity.url, imageV, progress)
+            websiteCredentialsDetails.websiteCredentialsEntity = websiteCredentialsEntity
+            websiteCredentialsDetails.adapterPosition = position
+
+            if(selectionTracker.isSelected( websiteCredentialsDetails.selectionKey )){
+                setSelectionUI()
+                itemView.isActivated = true
+            }else{
+                setDeselectUI()
+                itemView.isActivated = false
+            }
+
+        }
+
+        //selectiontracker on UI
+        fun setSelectionUI(){
+            bg.setBackgroundResource(R.drawable.cardview_bg_selected)
+
+        }
+
+        //selectiontracker off UI
+        fun setDeselectUI(){
+            bg.setBackgroundResource(R.drawable.cardview_bg_desselected)
+        }
+    }
+
+
 }

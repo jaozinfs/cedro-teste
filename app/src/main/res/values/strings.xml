@@ -40,6 +40,7 @@
     <string name="header_title">Favoritos</string>
     <string name="open_drawer">Abrir</string>
     <string name="close_drawer">Fechar</string>
+    <string name="menu_action_edit_title">Edit</string>
     <!-- bottom sheet-->
     <string name="bottom_sheet_header_title">Add</string>
     <string name="bottom_sheet_prompt_url_error">Invalid Url</string>

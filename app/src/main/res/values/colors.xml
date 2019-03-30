@@ -16,6 +16,6 @@
 
     <!-- app colors -->
     <color name="color_header">#E9E9E9</color>
-
+    <color name="color_bh">#464646</color>
 
 </resources>
