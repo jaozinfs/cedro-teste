@@ -40,11 +40,27 @@ class DownloadImage(application: Application){
                 },
 
                 {
-                    Log.d("ASSA", "Error: ${it.message}")
                 })
 
     }
+    fun requestDownloadImage(url: String, imageView: ImageView){
+        retrofitAPI.searchLogoFromUrl(url, null).timeout(60, TimeUnit.SECONDS)
+            .subscribeOn(Schedulers.io())
+            .unsubscribeOn(Schedulers.computation())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
 
+                {
+
+                    imageView.setImageBitmap(BitmapFactory.decodeStream(it.byteStream()))
+
+
+                },
+
+                {
+                })
+
+    }
 
     /**
      * Download bitmap async when search url in editext
@@ -66,4 +82,5 @@ class DownloadImage(application: Application){
                 })
 
     }
+
 }

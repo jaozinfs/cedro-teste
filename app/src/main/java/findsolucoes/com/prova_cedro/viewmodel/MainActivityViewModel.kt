@@ -1,17 +1,27 @@
 package findsolucoes.com.prova_cedro.viewmodel
 
 import android.app.Application
+import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
+import android.net.Uri
+import android.os.Bundle
 import android.text.TextUtils
+import android.util.Log
+import android.widget.TextView
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.selection.SelectionTracker
 import findsolucoes.com.prova_cedro.R
+import findsolucoes.com.prova_cedro.database.LogoDatabase
 import findsolucoes.com.prova_cedro.entites.WebsiteCredentialsEntity
+import findsolucoes.com.prova_cedro.models.WebsiteCredentialsListAdapter
+import findsolucoes.com.prova_cedro.repositories.UserRepository
 import findsolucoes.com.prova_cedro.repositories.WebsiteCredentialsRepository
 import findsolucoes.com.prova_cedro.repositories.logo.BitmapDownloadCallback
 import findsolucoes.com.prova_cedro.repositories.logo.DownloadImage
+import findsolucoes.com.prova_cedro.views.LoginActivity
 
 class MainActivityViewModel(application: Application) : AndroidViewModel(application){
 
@@ -24,7 +34,8 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     private val deleteItemFloatActionButton = MutableLiveData<Boolean>()
     private val editItemToolbar = MutableLiveData<Boolean>()
     private val selectionCleared = MutableLiveData<Boolean>()
-
+    private val openBottomSheetEdit = MutableLiveData<Boolean>()
+    private val hiddenBottomSheet = MutableLiveData<Boolean>()
 
     //bottomsheet prompts
     private var messageInputEmail =  MutableLiveData<String>()
@@ -43,6 +54,8 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
     //bottomsheet sucess
     fun sucessSaveWebsiteCredentials() : LiveData<Boolean> = sucessSaveWebsiteCredentials
+    fun openBottomSheetToEditItem() : LiveData<Boolean> = openBottomSheetEdit
+    fun hiddenBottomSheet() : LiveData<Boolean> = hiddenBottomSheet
 
     //prompt errors bottom sheet
     fun setErrorMessagePromptEmail() : LiveData<String> = messageInputEmail
@@ -57,9 +70,27 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         favListWebsiteCredentials.value?.add(websiteCredentialsEntity)
         favListWebsiteCredentials.value = listWebsiteCredentials.value
     }
-    fun deleteWebsiteCredentials(websiteCredentialsEntity: WebsiteCredentialsEntity){
-        websiteCredentialsRepository.deleteWebsiteCredentials(websiteCredentialsEntity)
+
+    fun deleteWebsiteCredentials(
+        selectionTracker: SelectionTracker<Long>,
+        list: ArrayList<WebsiteCredentialsEntity>,
+        adapterWebisiteCredentials: WebsiteCredentialsListAdapter
+    ){
+        val deleteItems = mutableListOf<WebsiteCredentialsEntity>()
+
+        for( key in selectionTracker.selection ){
+            val websiteCredentialsEntity = adapterWebisiteCredentials.getList().filter{ m -> m.id.toLong() == key }.single()
+            deleteItems.add( websiteCredentialsEntity )
+        }
+        deleteItems.forEach{
+            websiteCredentialsRepository.deleteWebsiteCredentials(it)
+        }
+
+       sucessSaveWebsiteCredentials.value = true
+
+        selectionTracker.clearSelection()
     }
+
     fun updateWebsiteCredentials(websiteCredentialsEntity: WebsiteCredentialsEntity){
         websiteCredentialsRepository.updateWebsiteCredentials(websiteCredentialsEntity)
     }
@@ -106,9 +137,11 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
             messageInputPassword.value = apcContext.getString(R.string.bottom_sheet_prompt_password_error)
             return
         }
-        websiteCredentialsRepository.insertWebsiteCredentials(WebsiteCredentialsEntity(0,url, email, password))
+        websiteCredentialsRepository.insertWebsiteCredentials(WebsiteCredentialsEntity(0, url, email, password))
+
 
         sucessSaveWebsiteCredentials.value = true
+
     }
 
     //selectiontracker observer patterns
@@ -119,7 +152,9 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                     super.onSelectionChanged()
                     val items = selectionTracker?.selection!!.size()
                     //nothing to do
-                    if (items > 2) return
+                    if (items > 2) {
+                        return
+                    }
 
                     //no items selected
                     if (items == 0) selectionCleared.value = true
@@ -130,9 +165,36 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                         deleteItemFloatActionButton.value = true
                     }
                     //more that one item selected
-                    if(items == 2) { editItemToolbar.value = false }
+                    if(items == 2) {
+                        hiddenBottomSheet.value = true
+                        editItemToolbar.value = false
+                    }
                 }
 
             })
     }
+
+    //set text in header view from user repository
+    fun configEmailNavHeader(headerView: TextView) {
+        try{
+            headerView.text = UserRepository(apcContext).getUser().email
+        }catch (error : Throwable){
+            error.printStackTrace()
+        }
+
+    }
+
+    fun gitHub() {
+        val uris = Uri.parse("http://github.com/jaozinfs/cedro-teste")
+        val intents = Intent(Intent.ACTION_VIEW, uris)
+        val b = Bundle()
+        b.putBoolean("new_window", true)
+        intents.putExtras(b)
+        apcContext.startActivity(intents)
+    }
+
+    fun logout() {
+
+    }
+
 }

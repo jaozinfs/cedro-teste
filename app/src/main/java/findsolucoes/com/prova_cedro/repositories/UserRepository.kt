@@ -3,6 +3,7 @@ package findsolucoes.com.prova_cedro.repositories
 import android.app.Application
 import android.os.AsyncTask
 import android.util.Log
+import androidx.room.RoomDatabase
 import findsolucoes.com.prova_cedro.database.LogoDatabase
 import findsolucoes.com.prova_cedro.dao.UserDao
 import findsolucoes.com.prova_cedro.data.RetrofitAPI
@@ -14,6 +15,8 @@ class UserRepository(application: Application){
     init {
         val db = LogoDatabase.getAppDataBase(application)
         userDao = db!!.userDao()
+
+
     }
 
     //add user with callback

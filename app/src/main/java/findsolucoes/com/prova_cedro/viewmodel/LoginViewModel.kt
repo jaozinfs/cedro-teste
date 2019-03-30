@@ -29,6 +29,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     private val loginRepository: UserRepository = UserRepository(application)
     private val loginSucessFull = MutableLiveData<Boolean>()
 
+
     init {
 
         userRopo = UserRepository(application)
@@ -54,8 +55,6 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                 progressState.value = false
 
                 if(loginResponse.type.equals("sucess")){
-                    //set errors message
-                    messageToast.value = loginResponse.message
                     //sucess case
                     //init user database delete all users and create new
                     //
@@ -126,5 +125,19 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
             UserEntity(0, "", loginCredentials.email, token), object : LoginUserCallback{
                 override fun onSucess() { loginSucessFull.value = true }
                 override fun onError(error: Throwable) { messageToast.value = apc.getString(R.string.internal_error) }})
+    }
+
+    //Simple way to verify have user in database
+    fun verifyUser() {
+        try {
+           if(userRopo!!.getUser() != null){
+               loginSucessFull.value = true
+               return
+           }else{
+               return
+           }
+        }catch (error : Throwable){
+            return
+        }
     }
 }

@@ -105,7 +105,8 @@ class RegisterActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun registerSucessFull(){
-        Log.d("TAG", "Register sucess and user is: ${UserRepository(application).getUser().name}")
+        showToast( getString( R.string.action_sucess_register ) )
+        finish()
     }
 
     //config title and arrow back toolbar

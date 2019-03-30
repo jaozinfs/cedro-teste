@@ -1,6 +1,8 @@
 package findsolucoes.com.prova_cedro.database
 
+import android.app.Application
 import android.content.Context
+import android.os.AsyncTask
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -32,6 +34,15 @@ abstract class LogoDatabase : RoomDatabase() {
 
         fun destroyDataBase(){
             INSTANCE = null
+        }
+
+        class ClearAlltable(val application: Application) : AsyncTask<Void, Void, Void>(){
+
+            override fun doInBackground(vararg params: Void?): Void? {
+                getAppDataBase(application)!!.clearAllTables()
+                return null
+            }
+
         }
     }
 }

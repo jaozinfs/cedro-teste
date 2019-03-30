@@ -45,6 +45,7 @@ class WebsiteCredentialsListAdapter(val application: Application) : RecyclerView
 
 
 
+
     override fun getItemId(position: Int): Long {
         return position.toLong()
     }
@@ -54,15 +55,13 @@ class WebsiteCredentialsListAdapter(val application: Application) : RecyclerView
     }
 
     fun updateList(updatelist : ArrayList<WebsiteCredentialsEntity>){
-
-        updatelist?.let {
-            this.list.clear()
-            this.list.addAll(updatelist)
-            this.notifyItemRangeChanged(0, updatelist.size - 1)
-        }
+        this.list.clear()
+        this.list.addAll(updatelist)
+        this.notifyDataSetChanged()
     }
 
     fun getList() : ArrayList<WebsiteCredentialsEntity> = list
+
 
     inner class ViewHolder(itemView: View, val downloadImage: DownloadImage) : RecyclerView.ViewHolder(itemView) {
 

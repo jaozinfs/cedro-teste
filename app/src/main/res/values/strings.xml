@@ -2,7 +2,6 @@
     <string name="base_url">https://api-prova-cedro.herokuapp.com/api/v2/</string>
     <string name="app_name">prova-cedro</string>
     <!-- Strings related to login -->
-
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Senha</string>
     <string name="prompt_url">Site</string>
@@ -35,6 +34,7 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_example">Example action</string>
     <string name="action_settings">Settings</string>
+    <string name="action_sucess_register">Registered user successfully</string>
 
     <!-- Main Activity Header -->
     <string name="header_title">Favoritos</string>
@@ -43,8 +43,22 @@
     <string name="menu_action_edit_title">Edit</string>
     <!-- bottom sheet-->
     <string name="bottom_sheet_header_title">Add</string>
+    <string name="bottom_sheet_header_title_edit">Edit</string>
+
     <string name="bottom_sheet_prompt_url_error">Invalid Url</string>
     <string name="bottom_sheet_prompt_email_error">Invalid email</string>
     <string name="bottom_sheet_prompt_password_error">Invalid password</string>
+
+
+    <!-- dialog -->
+    <string name="alert_dialog_title">Delete</string>
+    <string name="alert_dialog_message">Do you really want to delete the items ?</string>
+    <string name="hometitle">Home</string>
+    <string name="action_back_app">Tap back button agin to exit</string>
+    <string name="nav_header_message">Welcome</string>
+    <string name="action_logout">Logout</string>
+    <string name="action_github">Github</string>
+    <string name="aler_logout">Logout</string>
+    <string name="aler_logout_message">Do you really want to log out of your account?</string>
 
 </resources>

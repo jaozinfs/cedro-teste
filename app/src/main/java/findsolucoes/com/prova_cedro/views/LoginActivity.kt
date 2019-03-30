@@ -42,6 +42,7 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner 
         viewModel.getInputPasswordMessage().observe(this, Observer { cause-> setInputErrorPassword(cause)})
         viewModel.getIsClearInputMessages().observe(this, Observer { clearInputs()})
         viewModel.loginSucessfull().observe(this, Observer {
+            finish()
             startActivity(Intent(application, MainActivity::class.java))
         })
 
@@ -50,6 +51,7 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner 
     override fun onStart() {
         super.onStart()
 
+        viewModel.verifyUser()
         //set click action
         email_sign_in_button.setOnClickListener(this)
         action_register.setOnClickListener(this)
@@ -87,10 +89,12 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener, LifecycleOwner 
 
     //load wait progress show
     private fun showProgress(){
+        email_sign_in_button.isEnabled = false
         login_progress.visibility = View.VISIBLE
     }
     //load wait progress stop
     private fun stopProgress(){
+        email_sign_in_button.isEnabled = true
         login_progress.visibility = View.GONE
     }
 
