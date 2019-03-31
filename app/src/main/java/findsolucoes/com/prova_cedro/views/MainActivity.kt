@@ -389,6 +389,7 @@ class MainActivity : AppCompatActivity(),  View.OnClickListener, DrawerLayout.Dr
             !state -> {
                 editMenuItem?.isVisible = false
                 activity_main_bottomsheet_title.setText(R.string.bottom_sheet_header_title)
+                clearEditBottomSheet()
                 bottomSheetSaveAction = BottomSheetActionSave.ActionAdd
             }
         }
