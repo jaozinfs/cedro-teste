@@ -3,7 +3,6 @@ package findsolucoes.com.prova_cedro.views
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.res.Configuration
-import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -12,7 +11,6 @@ import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
@@ -99,6 +97,11 @@ class MainActivity : AppCompatActivity(),  View.OnClickListener, DrawerLayout.Dr
         ActionAdd,
         ActionEdit
     }
+    private enum class BottomSheetActionSave{
+        ActionAdd,
+        ActionEdit
+    }
+    private var bottomSheetSaveAction = BottomSheetActionSave.ActionAdd
     private var bottomSheetAction = BottomSheetAction.ActionAdd
     private var floatingActionButtonAct = FloatingActionButtonAct.ActionAdd
     private val TIME_INTERVAL = 2000 // # milliseconds, desired time passed between two back presses.
@@ -131,7 +134,8 @@ class MainActivity : AppCompatActivity(),  View.OnClickListener, DrawerLayout.Dr
         viewModel.setErrorMessagePromptPassword().observe(this, Observer { cause-> setInputErrorPassword(cause)})
         viewModel.setErrorMessagePromptUrl().observe(this, Observer { cause-> setInputErrorUrl(cause)})
         viewModel.clearPromptsBottomSheetMessage().observe(this, Observer { clearInputs() })
-        viewModel.sucessSaveWebsiteCredentials().observe(this, Observer { clearAndCloseBottomSheet() })
+        viewModel.sucessSaveWebsiteCredentials().observe(this, Observer { clearAndCloseBottomSheet()
+        })
         viewModel.selectionTrackerCleardSelections().observe(this, Observer { state -> selectionTrackerCleared()})
     }
 
@@ -178,10 +182,19 @@ class MainActivity : AppCompatActivity(),  View.OnClickListener, DrawerLayout.Dr
                 floatingActionButtonAct == FloatingActionButtonAct.ActionDelete -> deleteItemClick()
             }
         }else if(v!!.id == activity_main_bottomsheet_save.id){
-            viewModel.saveWebsiteCredentials(activity_main_bottomsheet_email.text.toString(),
-                activity_main_bottomsheet_password.text.toString(),
-                activity_main_bottomsheet_url.text.toString())
-        }
+           when{
+                bottomSheetSaveAction == BottomSheetActionSave.ActionEdit ->{
+                    viewModel.updateWebsiteCredentials(activity_main_bottomsheet_email.text.toString(),
+                        activity_main_bottomsheet_password.text.toString(),
+                        activity_main_bottomsheet_url.text.toString(), selectionTracker)
+                }
+                bottomSheetSaveAction == BottomSheetActionSave.ActionAdd -> {
+                    viewModel.saveWebsiteCredentials(activity_main_bottomsheet_email.text.toString(),
+                        activity_main_bottomsheet_password.text.toString(),
+                        activity_main_bottomsheet_url.text.toString())
+                }
+            }
+       }
     }
 
     //menu item
@@ -224,6 +237,8 @@ class MainActivity : AppCompatActivity(),  View.OnClickListener, DrawerLayout.Dr
         main_activity_rv_saves_websitecredentials.layoutManager = LinearLayoutManager(applicationContext)
         main_activity_rv_saves_websitecredentials.adapter = adapterWebisiteCredentials
     }
+
+    @SuppressLint("RestrictedApi")
     //initalize bottomsheet view
     private fun createBottomSheet() {
         sheetBehavior = BottomSheetBehavior.from<NestedScrollView>(bottom_sheet)
@@ -234,9 +249,16 @@ class MainActivity : AppCompatActivity(),  View.OnClickListener, DrawerLayout.Dr
                 when{
 
 
+
                 }
             }
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                Log.d("as", "offset: $slideOffset")
+                if(slideOffset.toInt() == 1){
+                    activity_main_action_add.visibility = View.GONE
+                }else{
+                    activity_main_action_add.visibility = View.VISIBLE
+                }
                 if(slideOffset > 0)
                     activity_main_action_add.animate().scaleX(1 - slideOffset).scaleY(1 - slideOffset).setDuration(0).start()
 
@@ -335,6 +357,12 @@ class MainActivity : AppCompatActivity(),  View.OnClickListener, DrawerLayout.Dr
         }
 
 
+        if(sheetBehavior!!.state == BottomSheetBehavior.STATE_EXPANDED){
+            sheetBehavior!!.state = BottomSheetBehavior.STATE_COLLAPSED
+            return
+        }
+
+
         if (mBackPressed + TIME_INTERVAL > System.currentTimeMillis())
         {
             super.onBackPressed()
@@ -355,11 +383,13 @@ class MainActivity : AppCompatActivity(),  View.OnClickListener, DrawerLayout.Dr
             state  -> {
                 editMenuItem?.isVisible = true
                 activity_main_bottomsheet_title.setText(R.string.bottom_sheet_header_title_edit)
+                bottomSheetSaveAction = BottomSheetActionSave.ActionEdit
                 setEditModal()
             }
             !state -> {
                 editMenuItem?.isVisible = false
                 activity_main_bottomsheet_title.setText(R.string.bottom_sheet_header_title)
+                bottomSheetSaveAction = BottomSheetActionSave.ActionAdd
             }
         }
     }
@@ -394,7 +424,7 @@ class MainActivity : AppCompatActivity(),  View.OnClickListener, DrawerLayout.Dr
 
         alertDialog.setPositiveButton("Delete"){dialog, _ ->
             // Do something when user press the positive button
-            viewModel.deleteWebsiteCredentials(selectionTracker, list, adapterWebisiteCredentials)
+            viewModel.deleteWebsiteCredentials(selectionTracker, adapterWebisiteCredentials)
         }
         //cancel delete
         alertDialog.setNegativeButton("Cancel"){ dialog, _ -> dialog.dismiss() }

@@ -56,11 +56,26 @@ class WebsiteCredentialsListAdapter(val application: Application) : RecyclerView
 
     fun updateList(updatelist : ArrayList<WebsiteCredentialsEntity>){
         this.list.clear()
-        this.list.addAll(updatelist)
-        this.notifyDataSetChanged()
+        if(updatelist != null && !updatelist.isEmpty()){
+
+            this.list.addAll(updatelist)
+            this.notifyDataSetChanged()
+        }else{
+
+            this.list.addAll(ArrayList<WebsiteCredentialsEntity>())
+            this.notifyDataSetChanged()
+        }
+
     }
 
     fun getList() : ArrayList<WebsiteCredentialsEntity> = list
+
+    fun removeALl(deleteItems: MutableList<WebsiteCredentialsEntity>) {
+
+        list.removeAll(deleteItems)
+        notifyDataSetChanged()
+
+    }
 
 
     inner class ViewHolder(itemView: View, val downloadImage: DownloadImage) : RecyclerView.ViewHolder(itemView) {

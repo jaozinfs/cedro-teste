@@ -1,7 +1,6 @@
 package findsolucoes.com.prova_cedro.viewmodel
 
 import android.app.Application
-import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
@@ -14,14 +13,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.selection.SelectionTracker
 import findsolucoes.com.prova_cedro.R
-import findsolucoes.com.prova_cedro.database.LogoDatabase
 import findsolucoes.com.prova_cedro.entites.WebsiteCredentialsEntity
 import findsolucoes.com.prova_cedro.models.WebsiteCredentialsListAdapter
 import findsolucoes.com.prova_cedro.repositories.UserRepository
 import findsolucoes.com.prova_cedro.repositories.WebsiteCredentialsRepository
 import findsolucoes.com.prova_cedro.repositories.logo.BitmapDownloadCallback
 import findsolucoes.com.prova_cedro.repositories.logo.DownloadImage
-import findsolucoes.com.prova_cedro.views.LoginActivity
 
 class MainActivityViewModel(application: Application) : AndroidViewModel(application){
 
@@ -73,9 +70,9 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
     fun deleteWebsiteCredentials(
         selectionTracker: SelectionTracker<Long>,
-        list: ArrayList<WebsiteCredentialsEntity>,
         adapterWebisiteCredentials: WebsiteCredentialsListAdapter
-    ){
+    ) {
+
         val deleteItems = mutableListOf<WebsiteCredentialsEntity>()
 
         for( key in selectionTracker.selection ){
@@ -85,14 +82,32 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         deleteItems.forEach{
             websiteCredentialsRepository.deleteWebsiteCredentials(it)
         }
-
-       sucessSaveWebsiteCredentials.value = true
-
         selectionTracker.clearSelection()
+
+        adapterWebisiteCredentials.removeALl( deleteItems )
+
+        val list = getListFromDatabase()
+        if (list.isEmpty()) {
+            editItemToolbar.value = false
+            deleteItemFloatActionButton.value = false
+        }
+
+
     }
 
-    fun updateWebsiteCredentials(websiteCredentialsEntity: WebsiteCredentialsEntity){
-        websiteCredentialsRepository.updateWebsiteCredentials(websiteCredentialsEntity)
+    fun updateWebsiteCredentials(
+        email: String,
+        password: String,
+        url: String,
+        selectionTracker: SelectionTracker<Long>
+    ){
+        for( key in selectionTracker.selection ){
+            val websiteCredentialsEntity = listWebsiteCredentials.value!!.filter{ m -> m.id.toLong() == key }.single()
+            val updatedWstCredentials = WebsiteCredentialsEntity(websiteCredentialsEntity.id, url, email, password)
+            websiteCredentialsRepository.updateWebsiteCredentials(updatedWstCredentials)
+        }
+        sucessSaveWebsiteCredentials.value = true
+
     }
     fun populateFromDatabase(){
         listWebsiteCredentials.value = websiteCredentialsRepository.getAllWebsiteCredentials()
@@ -157,7 +172,11 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                     }
 
                     //no items selected
-                    if (items == 0) selectionCleared.value = true
+                    if (items == 0){
+                        Log.d("as", "here ${items}")
+                        deleteItemFloatActionButton.value = false
+                        editItemToolbar.value = false
+                    }
 
                     //one item select
                     if(items == 1) {
@@ -184,17 +203,13 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
     }
 
+
+    //open github from navigation menu
     fun gitHub() {
-        val uris = Uri.parse("http://github.com/jaozinfs/cedro-teste")
-        val intents = Intent(Intent.ACTION_VIEW, uris)
-        val b = Bundle()
-        b.putBoolean("new_window", true)
-        intents.putExtras(b)
-        apcContext.startActivity(intents)
-    }
-
-    fun logout() {
-
+        val gitHubUrlItent = Intent(android.content.Intent.ACTION_VIEW)
+        gitHubUrlItent.data = Uri.parse("https://github.com/jaozinfs/cedro-teste")
+        gitHubUrlItent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        apcContext.startActivity(gitHubUrlItent)
     }
 
 }

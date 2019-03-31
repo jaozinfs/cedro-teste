@@ -112,7 +112,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/prompt_email"
-                    android:text="joaofgz@hotmail.com"
+
                     android:inputType="textEmailAddress"
                     android:gravity="center_horizontal"
                     android:maxLines="1"
@@ -142,7 +142,7 @@
                     android:imeActionLabel="@string/action_sign_in_short"
                     android:imeOptions="actionUnspecified"
                     android:inputType="textPassword"
-                    android:text="senhaCedro@234"
+
                     android:maxLines="1"
                     android:textColor="@color/text_light"
                     android:gravity="center_horizontal"
